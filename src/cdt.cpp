@@ -98,7 +98,7 @@ Rcpp::IntegerMatrix del2d_constrained_cpp(Rcpp::NumericMatrix pts,
         faces(Rcpp::_, i) = Rcpp::IntegerVector::create(id0, id1, id2);
         // faces(i, 1) = ids[1];
         // faces(i, 2) = ids[2];
-        ++i;
+        i = i + 1;
       }
     }
     nfaces_out = i;

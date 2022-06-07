@@ -34,7 +34,18 @@ NULL
 #' edges <- rbind(edges_outer, edges_inner)
 #' cdel(points, edges)
 cdel <- function(points, edges, mark_domains = TRUE){
-  if(!is.matrix(points) || !is.numeric(points)){
+   del <- t(tridel(points, edges, mark_domains))
+  rglfake <- list(vb = rbind(tpoints, 1), it = del)
+  class(rglfake) <- "mesh3d"
+  edges <- `colnames<-`(
+    as.matrix(vcgGetEdge(rglfake))[, -3L], c("v1", "v2", "border")
+  )
+  edges
+}
+
+
+tridel <- function(points, edges, mark_domains = TRUE) {
+    if(!is.matrix(points) || !is.numeric(points)){
     stop(
       "The `points` argument must be a numeric matrix with two or three columns.", 
       call. = TRUE
@@ -67,19 +78,14 @@ cdel <- function(points, edges, mark_domains = TRUE){
   storage.mode(edges) <- "integer"
   stopifnot(all(edges >= 1L))
   stopifnot(all(edges <= nrow(points)))
-  ## do a pmin/pmax dedupe here
-  edges <- t(apply(edges, 1L, sort))
+
+  ## bit faster than apply()
+  edges <- cbind(pmin(edges[,1L], edges[,2L]), pmax(edges[,1L], edges[,2L]))
   if(anyDuplicated(edges)){
     stop("There are some duplicated constraint edges.", call. = TRUE)
   }
   if(any(edges[, 1L] == edges[, 2L])){
     stop("There are some invalid constraint edges.", call. = TRUE)
   }
-  del <- del2d_constrained_cpp(tpoints, t(edges), mark_domains)
-  rglfake <- list(vb = rbind(tpoints, 1), it = del)
-  class(rglfake) <- "mesh3d"
-  edges <- `colnames<-`(
-    as.matrix(vcgGetEdge(rglfake))[, -3L], c("v1", "v2", "border")
-  )
-  edges
+  t(del2d_constrained_cpp(tpoints, t(edges), mark_domains))
 }
