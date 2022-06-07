@@ -11,20 +11,21 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // del2d_constrained_cpp
-Rcpp::IntegerMatrix del2d_constrained_cpp(Rcpp::NumericMatrix pts, Rcpp::IntegerMatrix edges);
-RcppExport SEXP _cdt_del2d_constrained_cpp(SEXP ptsSEXP, SEXP edgesSEXP) {
+Rcpp::IntegerMatrix del2d_constrained_cpp(Rcpp::NumericMatrix pts, Rcpp::IntegerMatrix edges, Rcpp::LogicalVector mark_the_domains);
+RcppExport SEXP _cdt_del2d_constrained_cpp(SEXP ptsSEXP, SEXP edgesSEXP, SEXP mark_the_domainsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type pts(ptsSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerMatrix >::type edges(edgesSEXP);
-    rcpp_result_gen = Rcpp::wrap(del2d_constrained_cpp(pts, edges));
+    Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type mark_the_domains(mark_the_domainsSEXP);
+    rcpp_result_gen = Rcpp::wrap(del2d_constrained_cpp(pts, edges, mark_the_domains));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_cdt_del2d_constrained_cpp", (DL_FUNC) &_cdt_del2d_constrained_cpp, 2},
+    {"_cdt_del2d_constrained_cpp", (DL_FUNC) &_cdt_del2d_constrained_cpp, 3},
     {NULL, NULL, 0}
 };
 

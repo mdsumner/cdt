@@ -5,9 +5,16 @@ NULL
 
 #' Title
 #'
+#' Description
+#' 
+#' By default holes are removed, as are triangles that are outside the boundary
+#' but inside the convex hull. Internally this is done by CGAL 'marking domains' by
+#' nesting level. This corresponds to the even-odd rule for holes. If 'mark_domains' is set to `FALSE`
+#' all triangles are returned (this can be handy for meshes). 
+#' 
 #' @param points xx
 #' @param edges xx
-#'
+#' @param mark_domains logical, holes are removed (see Details)
 #' @return xx
 #' @export
 #'
@@ -26,7 +33,7 @@ NULL
 #' edges_inner <- edges_outer + nsides
 #' edges <- rbind(edges_outer, edges_inner)
 #' cdel(points, edges)
-cdel <- function(points, edges){
+cdel <- function(points, edges, mark_domains = TRUE){
   if(!is.matrix(points) || !is.numeric(points)){
     stop(
       "The `points` argument must be a numeric matrix with two or three columns.", 
@@ -60,6 +67,7 @@ cdel <- function(points, edges){
   storage.mode(edges) <- "integer"
   stopifnot(all(edges >= 1L))
   stopifnot(all(edges <= nrow(points)))
+  ## do a pmin/pmax dedupe here
   edges <- t(apply(edges, 1L, sort))
   if(anyDuplicated(edges)){
     stop("There are some duplicated constraint edges.", call. = TRUE)
@@ -67,7 +75,7 @@ cdel <- function(points, edges){
   if(any(edges[, 1L] == edges[, 2L])){
     stop("There are some invalid constraint edges.", call. = TRUE)
   }
-  del <- del2d_constrained_cpp(tpoints, t(edges))
+  del <- del2d_constrained_cpp(tpoints, t(edges), mark_domains)
   rglfake <- list(vb = rbind(tpoints, 1), it = del)
   class(rglfake) <- "mesh3d"
   edges <- `colnames<-`(

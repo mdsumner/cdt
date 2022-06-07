@@ -63,7 +63,8 @@ void mark_domains(CDT& cdt) {
 
 // [[Rcpp::export]]
 Rcpp::IntegerMatrix del2d_constrained_cpp(Rcpp::NumericMatrix pts,
-                                          Rcpp::IntegerMatrix edges) {
+                                          Rcpp::IntegerMatrix edges, 
+                                          Rcpp::LogicalVector mark_the_domains) {
   const int npoints = pts.ncol();
   std::vector<std::pair<CDT::Point, int>> points(npoints);
   for(int i = 0; i < npoints; ++i) {
@@ -82,8 +83,9 @@ Rcpp::IntegerMatrix del2d_constrained_cpp(Rcpp::NumericMatrix pts,
   cdt.insert(points.begin(), points.end());
   const size_t nfaces = cdt.number_of_faces();
   Rcpp::IntegerMatrix faces(3, nfaces);
-  mark_domains(cdt);
+  if (mark_the_domains[0]) mark_domains(cdt);
   size_t nfaces_out;
+  
   {
     size_t i = 0;
     for(CDT::Face_handle f : cdt.finite_face_handles()){
